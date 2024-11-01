@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.ContactsMapper">
+    
+    <resultMap type="Contacts" id="ContactsResult">
+        <result property="id"    column="id"    />
+        <result property="name"    column="name"    />
+        <result property="phone"    column="phone"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectContactsVo">
+        select id, name, phone, remark from contacts
+    </sql>
+
+    <select id="selectContactsList" parameterType="Contacts" resultMap="ContactsResult">
+        <include refid="selectContactsVo"/>
+        <where>  
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="phone != null  and phone != ''"> and phone = #{phone}</if>
+        </where>
+    </select>
+    
+    <select id="selectContactsById" parameterType="Long" resultMap="ContactsResult">
+        <include refid="selectContactsVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertContacts" parameterType="Contacts" useGeneratedKeys="true" keyProperty="id">
+        insert into contacts
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="name != null and name != ''">name,</if>
+            <if test="phone != null and phone != ''">phone,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="name != null and name != ''">#{name},</if>
+            <if test="phone != null and phone != ''">#{phone},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateContacts" parameterType="Contacts">
+        update contacts
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="phone != null and phone != ''">phone = #{phone},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteContactsById" parameterType="Long">
+        delete from contacts where id = #{id}
+    </delete>
+
+    <delete id="deleteContactsByIds" parameterType="String">
+        delete from contacts where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
